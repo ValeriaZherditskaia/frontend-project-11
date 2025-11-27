@@ -1,13 +1,31 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend-project-11</title>
+    <title>RSS Reader</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" class="container py-5">
+      <h1 class="mb-4">RSS Reader</h1>
+      <form class="row g-3" id="rss-form">
+        <div class="col-auto">
+          <input
+            type="text"
+            class="form-control"
+            id="rss-url"
+            placeholder="Введите ссылку RSS"
+            required
+          />
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary mb-3">
+            Добавить
+          </button>
+        </div>
+      </form>
+      <div id="feeds"></div>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
