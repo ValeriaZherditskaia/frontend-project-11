@@ -1,27 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RSS Reader</title>
+    <title>/>
+    <title>Hexlet Frontend Project</title>
   </head>
   <body>
-    <div id="app" class="container py-5">
-      <h1 class="mb-4">RSS Reader</h1>
-      <form class="row g-3" id="rss-form">
-        <div class="col-auto">
+    <div id="app" class="container">
+      <h1>RSS агрегатор</h1>
+      <form id="rss-form">
+        <div>
           <input
             type="text"
-            class="form-control"
             id="rss-url"
-            placeholder="Введите ссылку RSS"
-            required
-          />
+            placeholder="Ссылка RSS"
+            required>
+          <div class="feedback invalid-feedback"></div>
         </div>
-        <div class="col-auto">
-          <button type="submit" class="btn btn-primary mb-3">
-            Добавить
-          </button>
+        <div>
+          <button type="submit">Добавить</button>
         </div>
       </form>
       <div id="feeds"></div>

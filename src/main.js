@@ -1,3 +1,4 @@
 import './style.css';
+import app from './application';
 
-console.log('RSS Reader app loaded');
+app();
