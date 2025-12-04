@@ -1,5 +1,6 @@
 import schema from './schema';
 import { renderErrors, resetForm } from './view';
+import i18next from './i18n';
 
 export default () => {
   // Находим элементы на странице
@@ -36,7 +37,7 @@ export default () => {
         const isDuplicate = state.feeds.includes(url);
 
         if (isDuplicate) {
-          state.errors = { url: 'Этот URL уже добавлен' };
+          state.errors = { url: 'errors.duplicate' };
         } else {
           state.feeds.push(url);
           state.errors = {};
@@ -46,8 +47,17 @@ export default () => {
         update();
       })
       .catch((validationError) => {
-        // URL не прошёл проверку
-        state.errors = { url: validationError.message };
+        let errorCode = 'errors.url.url'; // по умолчанию
+
+        if (validationError.message === i18next.t('errors.url.required')) {
+          errorCode = 'errors.url.required';
+        } else if (validationError.message === i18next.t('errors.url.url')) {
+          errorCode = 'errors.url.url';
+        } else if (validationError.message === i18next.t('errors.url.typeError')) {
+          errorCode = 'errors.url.typeError';
+        }
+
+        state.errors = { url: errorCode };
         update();
       });
   });
