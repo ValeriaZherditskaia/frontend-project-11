@@ -1,3 +1,7 @@
+# RSS Agregator 📰
+
+**Публичная ссылка:** https://frontend-project-11-six-pi.vercel.app
+
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/ValeriaZherditskaia/frontend-project-11/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/ValeriaZherditskaia/frontend-project-11/actions)
 
