@@ -153,6 +153,14 @@ export default () => {
     }
   });
 
-  // Запускаем автообновление каждые 5 секунд
-  setInterval(() => updateAllFeeds(watchedState), 5000);
+  // Запускаем автообновление с интервалом 5 секунд
+  const scheduleUpdate = async () => {
+    // Обновляем все фиды
+    await updateAllFeeds(watchedState);
+    // Запускаем следующее обновление через 5 сек ПОСЛЕ завершения
+    setTimeout(scheduleUpdate, 5000);
+  };
+
+  // Запускаем первый цикл обновлений
+  scheduleUpdate();
 };
