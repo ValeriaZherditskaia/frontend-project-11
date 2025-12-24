@@ -70,10 +70,10 @@ const renderFeeds = (feeds, container) => {
 };
 
 // Отображение списка постов
-const renderPosts = (posts, container) => {
-  // Создаём локальную переменную для параметра
+const renderPosts = (posts, container, readPosts = []) => {
+  // Создаём локальную переменную
   const el = container;
-  // Очищаем контейнер
+
   el.innerHTML = '';
 
   // Если нет постов - выходим
@@ -92,7 +92,14 @@ const renderPosts = (posts, container) => {
   // Для каждого поста создаём элемент
   posts.forEach((post) => {
     const item = document.createElement('li');
-    item.classList.add('list-group-item');
+    item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+    // Прочитан ли пост
+    const isRead = readPosts.includes(post.id);
+
+    // Создаём контейнер для заголовка и ссылки
+    const linkContainer = document.createElement('div');
+    linkContainer.style.flex = '1';
 
     // Создаём ссылку на пост
     const link = document.createElement('a');
@@ -101,8 +108,26 @@ const renderPosts = (posts, container) => {
     link.rel = 'noopener noreferrer'; // Безопасность
     link.textContent = post.title;
 
+    // Если пост НЕ прочитан - жирный шрифт
+    // Если пост прочитан - обычный серый шрифт
+    if (isRead) {
+      link.classList.add('fw-normal', 'text-muted');
+    } else {
+      link.classList.add('fw-bold');
+    }
+
+    linkContainer.appendChild(link);
+
+    // Создаём кнопку "Просмотр"
+    const viewBtn = document.createElement('button');
+    viewBtn.type = 'button';
+    viewBtn.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+    viewBtn.textContent = 'Просмотр';
+    viewBtn.dataset.postId = post.id; // Сохраняем ID поста в атрибут
+
     // Добавляем в элемент списка
-    item.appendChild(link);
+    item.appendChild(linkContainer);
+    item.appendChild(viewBtn);
     postList.appendChild(item);
   });
 

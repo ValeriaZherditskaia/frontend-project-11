@@ -25,10 +25,16 @@ const parseRss = (xmlString) => {
   itemElements.forEach((item) => {
     const postTitleElement = item.querySelector('title');
     const postTitle = postTitleElement ? postTitleElement.textContent.trim() : 'Без заголовка';
+
     const postLinkElement = item.querySelector('link');
     const postLink = postLinkElement ? postLinkElement.textContent.trim() : '';
+
+    const postDescriptionElement = item.querySelector('description');
+    const postDescription = postDescriptionElement ? postDescriptionElement.textContent.trim() : 'Описание не доступно';
+
     posts.push({
       title: postTitle,
+      description: postDescription,
       link: postLink,
     });
   });

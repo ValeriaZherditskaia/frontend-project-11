@@ -1,4 +1,5 @@
 /* eslint-disable no-use-before-define */
+import * as bootstrap from 'bootstrap';
 import onChange from 'on-change';
 import createSchema from './schema';
 import {
@@ -9,10 +10,25 @@ import {
 } from './view';
 import fetchRss from './fetcher';
 import parseRss from './parsers';
-/* eslint-disable no-use-before-define */
 
 // Генерирует уникальный ID для фидов и постов
 const generateId = () => Math.random().toString(36).slice(2);
+
+// Функция для открытия модального окна
+const openPostModal = (post) => {
+  // Заполняем заголовок модалки
+  document.getElementById('postModalLabel').textContent = post.title;
+
+  // Заполняем описание модалки
+  document.getElementById('postModalBody').innerHTML = `
+    <p>${post.description || ''}</p>
+    <p><a href="${post.link}" target="_blank" class="btn btn-sm btn-primary">Читать полностью</a></p>
+  `;
+
+  // Открываем модалку через Bootstrap
+  const modal = new bootstrap.Modal(document.getElementById('postModal'));
+  modal.show();
+};
 
 // Загружает новые посты из одного фида и добавляет их в state
 const updateFeed = async (feed, watchedState) => {
@@ -23,16 +39,17 @@ const updateFeed = async (feed, watchedState) => {
     const { posts } = parseRss(rssData);
 
     // Проходим по каждому посту
-    posts.forEach((post) => {
+    posts.forEach(({ title, description, link }) => {
       // Проверяем, есть ли уже такой пост в state
-      const exists = watchedState.posts.some((p) => p.link === post.link);
+      const exists = watchedState.posts.some((p) => p.link === link);
       // Если поста нет - добавляем его в начало списка
       if (!exists) {
         watchedState.posts.unshift({
           id: generateId(),
           feedId: feed.id,
-          title: post.title,
-          link: post.link,
+          title,
+          description,
+          link,
         });
       }
     });
@@ -62,27 +79,50 @@ export default () => {
 
   // Создаём состояние приложения
   const state = {
-    feeds: [], // Список фидов
-    posts: [], // Список всех постов из всех фидов
-    errors: {}, // Объект с ошибками валидации
+    feeds: [],
+    posts: [],
+    readPosts: [],
+    errors: {},
     isLoading: false, // Флаг загрузки (для отключения кнопки)
   };
 
-  // Создаём наблюдаемое состояние (ПЕРЕД функцией update!)
+  // Создаём наблюдаемое состояние
   const watchedState = onChange(state, () => {
     // Каждый раз, когда state меняется, вызываем update()
     // eslint-disable-next-line no-use-before-define
     update();
   });
 
-  // Функция для обновления отображения (ПОСЛЕ watchedState!)
+  // Функция для обновления отображения
   const update = () => {
     renderErrors(watchedState.errors, elements);
     renderFeeds(watchedState.feeds, elements.feedsContainer);
-    renderPosts(watchedState.posts, elements.postsContainer);
+    renderPosts(watchedState.posts, elements.postsContainer, watchedState.readPosts);
     // Отключаем кнопку, если идёт загрузка
     elements.button.disabled = watchedState.isLoading;
   };
+
+  // Обработчик на кнопки "Просмотр"
+  elements.postsContainer.addEventListener('click', (e) => {
+    // Проверяем, что кликнули именно на кнопку
+    if (e.target.classList.contains('btn-outline-primary')) {
+      // Берём ID поста
+      const { postId } = e.target.dataset;
+
+      // Находим пост в state
+      const post = watchedState.posts.find((p) => p.id === postId);
+
+      if (post) {
+        // Открываем модалку
+        openPostModal(post);
+
+        // Отмечаем пост как прочитанный
+        if (!watchedState.readPosts.includes(postId)) {
+          watchedState.readPosts.push(postId);
+        }
+      }
+    }
+  });
 
   // Слушаем отправку формы
   elements.form.addEventListener('submit', async (e) => {
@@ -121,12 +161,13 @@ export default () => {
       });
 
       // Добавляем все посты из этого фида в state
-      posts.forEach((post) => {
+      posts.forEach(({ title, description, link }) => {
         watchedState.posts.push({
           id: generateId(),
           feedId, // Связываем пост с фидом
-          title: post.title,
-          link: post.link,
+          title,
+          description,
+          link,
         });
       });
 
@@ -157,7 +198,7 @@ export default () => {
   const scheduleUpdate = async () => {
     // Обновляем все фиды
     await updateAllFeeds(watchedState);
-    // Запускаем следующее обновление через 5 сек ПОСЛЕ завершения
+    // Запускаем следующее обновление через 5 сек после завершения
     setTimeout(scheduleUpdate, 5000);
   };
 

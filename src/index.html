@@ -6,25 +6,58 @@
     <title>Hexlet Frontend Project</title>
   </head>
   <body>
-    <div id="app" class="container">
+    <div id="app" class="container mt-5">
       <h1>RSS агрегатор</h1>
-      <form id="rss-form">
-        <div>
+      <form id="rss-form" class="mb-4">
+        <div class="mb-3">
           <input
             type="text"
             id="rss-url"
+            class="form-control"
             placeholder="Ссылка RSS"
             required
           />
-          <div class="feedback invalid-feedback"></div>
+          <div class="feedback invalid-feedback d-block"></div>
         </div>
-        <div>
-          <button type="submit">Добавить</button>
-        </div>
+        <button type="submit" class="btn btn-primary">Добавить</button>
       </form>
       <div id="feeds"></div>
       <div id="posts"></div>
     </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ПРЕДПРОСМОТРА ПОСТА -->
+    <div
+      class="modal fade"
+      id="postModal"
+      tabindex="-1"
+      aria-labelledby="postModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="postModalLabel"></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="postModalBody"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Закрыть
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="./main.js"></script>
   </body>
 </html>
