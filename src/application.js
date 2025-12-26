@@ -1,12 +1,14 @@
 /* eslint-disable no-use-before-define */
 import * as bootstrap from 'bootstrap';
 import onChange from 'on-change';
+import i18next from './i18n';
 import createSchema from './schema';
 import {
   renderErrors,
   resetForm,
   renderFeeds,
   renderPosts,
+  renderSuccess,
 } from './view';
 import fetchRss from './fetcher';
 import parseRss from './parsers';
@@ -16,35 +18,42 @@ const generateId = () => Math.random().toString(36).slice(2);
 
 // Функция для открытия модального окна
 const openPostModal = (post) => {
-  // Заполняем заголовок модалки
-  document.getElementById('postModalLabel').textContent = post.title;
+  const titleEl = document.getElementById('postModalLabel');
+  const bodyEl = document.getElementById('postModalBody');
+  const footerEl = document.querySelector('.modal-footer');
 
-  // Заполняем описание модалки
-  document.getElementById('postModalBody').innerHTML = `
-    <p>${post.description || ''}</p>
-    <p><a href="${post.link}" target="_blank" class="btn btn-sm btn-primary">Читать полностью</a></p>
+  titleEl.textContent = post.title;
+  bodyEl.innerHTML = `<p>${post.description || ''}</p>`;
+
+  // Кнопка в footer рядом с Закрыть
+  footerEl.innerHTML = `
+    <a
+      href="${post.link}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn btn-primary"
+    >
+      Читать полностью
+    </a>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+      Закрыть
+    </button>
   `;
 
-  // Открываем модалку через Bootstrap
   const modal = new bootstrap.Modal(document.getElementById('postModal'));
   modal.show();
 };
 
-// Загружает новые посты из одного фида и добавляет их в state
-const updateFeed = async (feed, watchedState) => {
+// Загружает новые посты БЕЗ триггера onChange
+const updateFeedSilent = async (feed, posts) => {
   try {
-    // Скачиваем RSS с сервера
     const rssData = await fetchRss(feed.url);
-    // Парсим XML и извлекаем посты
-    const { posts } = parseRss(rssData);
+    const { posts: newPosts } = parseRss(rssData);
 
-    // Проходим по каждому посту
-    posts.forEach(({ title, description, link }) => {
-      // Проверяем, есть ли уже такой пост в state
-      const exists = watchedState.posts.some((p) => p.link === link);
-      // Если поста нет - добавляем его в начало списка
+    newPosts.forEach(({ title, description, link }) => {
+      const exists = posts.some((p) => p.link === link);
       if (!exists) {
-        watchedState.posts.unshift({
+        posts.unshift({
           id: generateId(),
           feedId: feed.id,
           title,
@@ -54,15 +63,14 @@ const updateFeed = async (feed, watchedState) => {
       }
     });
   } catch (error) {
-    // Продолжаем обновлять остальные фиды
+    // игнорируем
   }
 };
 
-// Обновляет все фиды одновременно
-const updateAllFeeds = async (watchedState) => {
-  // Promise.all ждёт, пока все обновления завершатся
+// Обновляет все фиды БЕЗ триггера onChange
+const updateAllFeedsSilent = async (feeds, posts) => {
   await Promise.all(
-    watchedState.feeds.map((feed) => updateFeed(feed, watchedState)),
+    feeds.map((feed) => updateFeedSilent(feed, posts)),
   );
 };
 
@@ -70,53 +78,50 @@ export default () => {
   // Находим элементы на странице
   const elements = {
     form: document.getElementById('rss-form'),
-    input: document.getElementById('rss-url'),
+    input: document.getElementById('url-input'),
     button: document.querySelector('button[type="submit"]'),
-    feedback: document.querySelector('.feedback'),
+    feedback: document.querySelector('.invalid-feedback'),
     feedsContainer: document.getElementById('feeds'),
     postsContainer: document.getElementById('posts'),
   };
 
-  // Создаём состояние приложения
+  // Состояние приложения
   const state = {
     feeds: [],
     posts: [],
     readPosts: [],
     errors: {},
-    isLoading: false, // Флаг загрузки (для отключения кнопки)
+    isLoading: false,
+    successMessage: false,
   };
 
-  // Создаём наблюдаемое состояние
+  const update = () => {
+    // Показываем ошибки или успех
+    if (state.successMessage) {
+      renderSuccess(elements.feedback);
+    } else {
+      renderErrors(state.errors, elements);
+    }
+
+    renderFeeds(state.feeds, elements.feedsContainer);
+    renderPosts(state.posts, elements.postsContainer, state.readPosts);
+    elements.button.disabled = state.isLoading;
+  };
+
+  // Наблюдаемое состояние
   const watchedState = onChange(state, () => {
-    // Каждый раз, когда state меняется, вызываем update()
-    // eslint-disable-next-line no-use-before-define
     update();
   });
 
-  // Функция для обновления отображения
-  const update = () => {
-    renderErrors(watchedState.errors, elements);
-    renderFeeds(watchedState.feeds, elements.feedsContainer);
-    renderPosts(watchedState.posts, elements.postsContainer, watchedState.readPosts);
-    // Отключаем кнопку, если идёт загрузка
-    elements.button.disabled = watchedState.isLoading;
-  };
-
-  // Обработчик на кнопки "Просмотр"
+  // Обработчик клика по кнопкам "Просмотр"
   elements.postsContainer.addEventListener('click', (e) => {
-    // Проверяем, что кликнули именно на кнопку
     if (e.target.classList.contains('btn-outline-primary')) {
-      // Берём ID поста
       const { postId } = e.target.dataset;
-
-      // Находим пост в state
       const post = watchedState.posts.find((p) => p.id === postId);
 
       if (post) {
-        // Открываем модалку
         openPostModal(post);
 
-        // Отмечаем пост как прочитанный
         if (!watchedState.readPosts.includes(postId)) {
           watchedState.readPosts.push(postId);
         }
@@ -124,35 +129,24 @@ export default () => {
     }
   });
 
-  // Слушаем отправку формы
+  // Обработчик отправки формы
   elements.form.addEventListener('submit', async (e) => {
-    // Останавливаем перезагрузку страницы
     e.preventDefault();
 
-    // Получаем URL из инпута и удаляем пробелы
     const url = elements.input.value.trim();
-
-    // Создаём schema с текущим списком фидов (для проверки дубликатов)
     const schema = createSchema(watchedState.feeds);
 
     try {
-      // Валидируем URL
       await schema.validate({ url });
 
-      // Очищаем старые ошибки
       watchedState.errors = {};
-      // Показываем, что идёт загрузка
       watchedState.isLoading = true;
 
-      // Скачиваем RSS с помощью прокси All Origins
       const rssData = await fetchRss(url);
-      // Парсим XML и извлекаем информацию о фиде и постах
       const { feed, posts } = parseRss(rssData);
 
-      // Генерируем уникальный ID для нового фида
       const feedId = generateId();
 
-      // Добавляем новый фид в state
       watchedState.feeds.push({
         id: feedId,
         url,
@@ -160,48 +154,59 @@ export default () => {
         description: feed.description,
       });
 
-      // Добавляем все посты из этого фида в state
       posts.forEach(({ title, description, link }) => {
         watchedState.posts.push({
           id: generateId(),
-          feedId, // Связываем пост с фидом
+          feedId,
           title,
           description,
           link,
         });
       });
 
-      // Очищаем форму и инпут
       resetForm(elements);
+      watchedState.isLoading = false;
+
+      // Показываем сообщение об успехе и оно НЕ пропадает
+      watchedState.successMessage = true;
+      update();
     } catch (error) {
-      // Обрабатываем ошибки
+      watchedState.isLoading = false;
+      watchedState.successMessage = false;
+
       if (error.message === 'invalid_rss_format') {
-        // Ошибка: RSS неправильного формата
-        watchedState.errors.url = 'errors.invalid_rss_format';
+        watchedState.errors.url = i18next.t('errors.invalid_rss_format');
       } else if (error.message === 'fetch_error') {
-        // Ошибка: не удалось загрузить RSS с сервера
-        watchedState.errors.url = 'errors.fetch_error';
+        watchedState.errors.url = i18next.t('errors.fetch_error');
+      } else if (error.message === 'duplicate') {
+        watchedState.errors.url = i18next.t('errors.duplicate');
       } else {
-        // Ошибка валидации от Yup (дубликат, неправильный URL и т.д.)
         watchedState.errors.url = error.message;
       }
-
-      // Перерисовываем страницу с ошибкой
       update();
-    } finally {
-      // Разблокируем кнопку после загрузки (в любом случае)
-      watchedState.isLoading = false;
     }
   });
 
-  // Запускаем автообновление с интервалом 5 секунд
+  // Обработчик на изменение инпута
+  elements.input.addEventListener('input', async () => {
+    const url = elements.input.value.trim();
+    const schema = createSchema(watchedState.feeds);
+
+    try {
+      await schema.validate({ url });
+      watchedState.errors = {};
+    } catch (error) {
+      watchedState.errors.url = error.message;
+    }
+  });
+
+  // Автообновление БЕЗ триггера onChange
   const scheduleUpdate = async () => {
-    // Обновляем все фиды
-    await updateAllFeeds(watchedState);
-    // Запускаем следующее обновление через 5 сек после завершения
+    await updateAllFeedsSilent(watchedState.feeds, watchedState.posts);
+    // Ручное обновление ТОЛЬКО постов, БЕЗ перерисовки feedback
+    renderPosts(watchedState.posts, elements.postsContainer, watchedState.readPosts);
     setTimeout(scheduleUpdate, 5000);
   };
 
-  // Запускаем первый цикл обновлений
   scheduleUpdate();
 };

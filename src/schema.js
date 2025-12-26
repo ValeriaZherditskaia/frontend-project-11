@@ -4,10 +4,10 @@ import i18next from './i18n';
 // Локализованные сообщения об ошибках
 yup.setLocale({
   mixed: {
-    typeError: () => i18next.t('errors.url.typeError'),
+    default: () => i18next.t('errors.empty'),
   },
   string: {
-    url: () => i18next.t('errors.url.url'),
+    url: () => i18next.t('errors.invalidUrl'),
   },
 });
 
@@ -19,11 +19,12 @@ const createSchema = (feeds) => {
   // Возвращаем новую schema с проверкой дубликатов
   return yup.object().shape({
     url: yup
-      .string() // Проверка: это строка?
-      .typeError(i18next.t('errors.url.typeError')) // Сообщение, если не строка
-      .required(i18next.t('errors.url.required')) // Проверка: не пустой?
-      .url(i18next.t('errors.url.url')) // Проверка: валидный URL?
-      .notOneOf(existingUrls, i18next.t('errors.duplicate')), // Проверка: не дубликат?
+      .string()
+      .typeError(i18next.t('errors.empty'))
+      .required(i18next.t('errors.empty'))
+      .url(i18next.t('errors.invalidUrl'))
+      .notOneOf(existingUrls, i18next.t('errors.duplicate')),
   });
 };
+
 export default createSchema;

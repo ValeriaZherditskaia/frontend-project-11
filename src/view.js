@@ -1,115 +1,141 @@
 /* eslint-disable no-param-reassign */
 import i18next from './i18n';
 
-// Функция, которая подсвечивает инпут красным
+// Подсветка инпута и вывод ошибок
 const renderErrors = (errors, inputElements) => {
   const el = inputElements;
 
-  // Очищаем все ошибки перед новой проверкой
   el.input.classList.remove('is-invalid');
   el.feedback.textContent = '';
+  el.feedback.classList.remove('text-success');
+  el.feedback.style.display = 'none';
 
-  // Если есть новые ошибки — показываем
   if (errors && errors.url) {
     el.input.classList.add('is-invalid');
-    el.feedback.textContent = i18next.t(errors.url);
+    el.feedback.textContent = errors.url;
+    el.feedback.classList.add('text-danger');
+    el.feedback.style.display = 'block';
   }
 };
 
-// Функция, которая очищает форму
+// Очистка формы
 const resetForm = (formElements) => {
   const el = formElements;
 
-  el.form.reset(); // Очищает все инпуты
-  el.input.classList.remove('is-invalid'); // Убирает красную рамку
-  el.feedback.textContent = ''; // Убирает текст ошибки
-  el.input.focus(); // Фокус на инпут (курсор туда)
+  el.form.reset();
+  el.input.classList.remove('is-invalid');
+  el.feedback.textContent = '';
+  el.feedback.classList.remove('text-danger');
+  el.feedback.classList.remove('text-success');
+  el.feedback.style.display = 'none';
+  el.input.focus();
+};
+
+// Успешная загрузка RSS
+const renderSuccess = (container) => {
+  container.textContent = i18next.t('success');
+  container.classList.remove('text-danger');
+  container.classList.add('text-success');
+  container.style.display = 'block';
 };
 
 // Отображение списка фидов
 const renderFeeds = (feeds, container) => {
   const el = container;
-  // Очищаем контейнер
   el.innerHTML = '';
 
-  // Если нет фидов - выходим
   if (feeds.length === 0) {
     return;
   }
 
-  // Создаём заголовок
   const title = document.createElement('h2');
-  title.textContent = 'Потоки';
+  title.textContent = i18next.t('feeds');
+  title.style.fontSize = '1.4rem';
+  title.style.marginBottom = '1.5rem';
+  title.style.marginTop = '0';
 
-  // Создаём список
   const feedList = document.createElement('ul');
   feedList.classList.add('list-group');
+  feedList.style.listStyle = 'none';
+  feedList.style.padding = '0';
+  feedList.style.margin = '0';
 
-  // Для каждого фида создаём элемент
   feeds.forEach((feed) => {
     const item = document.createElement('li');
-    item.classList.add('list-group-item');
+    item.style.marginBottom = '2rem';
+    item.style.border = 'none';
+    item.style.padding = '0';
 
-    // Заголовок фида
     const feedTitle = document.createElement('h3');
     feedTitle.textContent = feed.title;
+    feedTitle.style.fontSize = '1rem';
+    feedTitle.style.marginBottom = '0.5rem';
+    feedTitle.style.fontWeight = '600';
+    feedTitle.style.margin = '0';
 
-    // Описание фида
     const feedDesc = document.createElement('p');
     feedDesc.textContent = feed.description;
+    feedDesc.style.fontSize = '0.875rem';
+    feedDesc.style.color = '#666';
+    feedDesc.style.marginBottom = '0';
+    feedDesc.style.lineHeight = '1.4';
+    feedDesc.style.margin = '0';
 
-    // Добавляем в элемент списка
     item.appendChild(feedTitle);
     item.appendChild(feedDesc);
     feedList.appendChild(item);
   });
 
-  // Добавляем в контейнер
   el.appendChild(title);
   el.appendChild(feedList);
 };
 
 // Отображение списка постов
 const renderPosts = (posts, container, readPosts = []) => {
-  // Создаём локальную переменную
   const el = container;
-
   el.innerHTML = '';
 
-  // Если нет постов - выходим
   if (posts.length === 0) {
     return;
   }
 
-  // Создаём заголовок
   const title = document.createElement('h2');
-  title.textContent = 'Посты';
+  title.textContent = i18next.t('posts');
+  title.style.fontSize = '1.4rem';
+  title.style.marginBottom = '1.5rem';
+  title.style.marginTop = '0';
 
-  // Создаём список
   const postList = document.createElement('ul');
   postList.classList.add('list-group');
+  postList.style.border = 'none';
+  postList.style.padding = '0';
+  postList.style.margin = '0';
 
-  // Для каждого поста создаём элемент
   posts.forEach((post) => {
     const item = document.createElement('li');
-    item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+    item.classList.add('d-flex', 'justify-content-between', 'align-items-flex-start');
+    item.style.border = 'none';
+    item.style.padding = '0';
+    item.style.marginBottom = '0.75rem';
+    item.style.backgroundColor = 'transparent';
+    item.style.gap = '1rem';
 
-    // Прочитан ли пост
     const isRead = readPosts.includes(post.id);
 
-    // Создаём контейнер для заголовка и ссылки
     const linkContainer = document.createElement('div');
     linkContainer.style.flex = '1';
+    linkContainer.style.minWidth = '0';
 
-    // Создаём ссылку на пост
     const link = document.createElement('a');
     link.href = post.link;
-    link.target = '_blank'; // Открыть в новой вкладке
-    link.rel = 'noopener noreferrer'; // Безопасность
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
     link.textContent = post.title;
+    link.style.fontSize = '1rem';
+    link.style.lineHeight = '1.5';
+    link.style.wordWrap = 'break-word';
+    link.style.display = 'inline';
 
-    // Если пост НЕ прочитан - жирный шрифт
-    // Если пост прочитан - обычный серый шрифт
     if (isRead) {
       link.classList.add('fw-normal', 'text-muted');
     } else {
@@ -118,20 +144,19 @@ const renderPosts = (posts, container, readPosts = []) => {
 
     linkContainer.appendChild(link);
 
-    // Создаём кнопку "Просмотр"
     const viewBtn = document.createElement('button');
     viewBtn.type = 'button';
     viewBtn.classList.add('btn', 'btn-sm', 'btn-outline-primary');
-    viewBtn.textContent = 'Просмотр';
-    viewBtn.dataset.postId = post.id; // Сохраняем ID поста в атрибут
+    viewBtn.textContent = i18next.t('preview');
+    viewBtn.dataset.postId = post.id;
+    viewBtn.style.flexShrink = '0';
+    viewBtn.style.whiteSpace = 'nowrap';
 
-    // Добавляем в элемент списка
     item.appendChild(linkContainer);
     item.appendChild(viewBtn);
     postList.appendChild(item);
   });
 
-  // Добавляем в контейнер
   el.appendChild(title);
   el.appendChild(postList);
 };
@@ -141,4 +166,5 @@ export {
   resetForm,
   renderFeeds,
   renderPosts,
+  renderSuccess,
 };

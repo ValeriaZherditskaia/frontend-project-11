@@ -1,0 +1,14 @@
+{
+  "preview": "Preview",
+  "closeButton": "Close",
+  "success": "RSS loaded successfully",
+  "feeds": "Feeds",
+  "posts": "Posts",
+  "errors": {
+    "empty": "Must not be empty",
+    "invalidUrl": "Link must be a valid URL",
+    "duplicate": "RSS already exists",
+    "invalidRss": "Resource does not contain valid RSS",
+    "networkError": "Network error"
+  }
+}

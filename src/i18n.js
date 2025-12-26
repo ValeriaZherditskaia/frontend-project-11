@@ -1,12 +1,12 @@
 import i18next from 'i18next';
-import resources from './locales/ru.json';
+import ruResources from './locales/ru.json';
+import enResources from './locales/en.json';
 
 i18next.init({
   lng: 'ru',
   resources: {
-    ru: {
-      translation: resources,
-    },
+    ru: { translation: ruResources },
+    en: { translation: enResources },
   },
 });
 
