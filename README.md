@@ -33,8 +33,10 @@ RSS (Really Simple Syndication) — это специализированный 
 - **Парсинг:** DOMParser (XML)
 - **DevOps:** GitHub Actions, ESLint, Vercel
 
-## Установка и запус
+## Установка и запуск
+```
 npm install
 npm run dev # разработка
 npm run build # продакшен
 npm run lint # проверка кода
+```
