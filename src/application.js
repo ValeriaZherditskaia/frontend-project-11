@@ -25,7 +25,7 @@ const openPostModal = (post) => {
   titleEl.textContent = post.title;
   bodyEl.innerHTML = `<p>${post.description || ''}</p>`;
 
-  // Кнопка в footer рядом с Закрыть
+  // Кнопки в footer
   footerEl.innerHTML = `
     <a
       href="${post.link}"
@@ -44,7 +44,7 @@ const openPostModal = (post) => {
   modal.show();
 };
 
-// Загружает новые посты БЕЗ триггера onChange
+// Загружает новые посты
 const updateFeedSilent = async (feed, posts) => {
   try {
     const rssData = await fetchRss(feed.url);
@@ -67,7 +67,7 @@ const updateFeedSilent = async (feed, posts) => {
   }
 };
 
-// Обновляет все фиды БЕЗ триггера onChange
+// Обновляет все фиды
 const updateAllFeedsSilent = async (feeds, posts) => {
   await Promise.all(
     feeds.map((feed) => updateFeedSilent(feed, posts)),
@@ -167,7 +167,7 @@ export default () => {
       resetForm(elements);
       watchedState.isLoading = false;
 
-      // Показываем сообщение об успехе и оно НЕ пропадает
+      // Показываем сообщение об успехе
       watchedState.successMessage = true;
       update();
     } catch (error) {
@@ -200,10 +200,10 @@ export default () => {
     }
   });
 
-  // Автообновление БЕЗ триггера onChange
+  // Автообновление
   const scheduleUpdate = async () => {
     await updateAllFeedsSilent(watchedState.feeds, watchedState.posts);
-    // Ручное обновление ТОЛЬКО постов, БЕЗ перерисовки feedback
+    // Ручное обновление постов
     renderPosts(watchedState.posts, elements.postsContainer, watchedState.readPosts);
     setTimeout(scheduleUpdate, 5000);
   };
