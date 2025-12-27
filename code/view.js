@@ -140,7 +140,8 @@ const renderPosts = (posts, container, readPosts = []) => {
 
     if (isRead) {
       link.classList.add('fw-normal', 'text-muted')
-    } else {
+    } 
+    else {
       link.classList.add('fw-bold')
     }
 

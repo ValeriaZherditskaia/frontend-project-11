@@ -23,7 +23,7 @@ const fetchRss = async (url) => {
 
     // Возвращаем содержимое (XML-строку)
     return response.data.contents
-  } catch (error) {
+  } catch {
     // Если произойдёт ошибка сети, timeout или другая ошибка axios
     const err = new Error('fetch_error')
     throw err
