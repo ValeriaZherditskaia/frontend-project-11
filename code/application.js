@@ -13,10 +13,8 @@ import {
 import fetchRss from './fetcher'
 import parseRss from './parsers'
 
-
 // Генерирует уникальный ID для фидов и постов
 const generateId = () => Math.random().toString(36).slice(2)
-
 
 // Функция для открытия модального окна
 const openPostModal = (post) => {
@@ -24,10 +22,8 @@ const openPostModal = (post) => {
   const bodyEl = document.getElementById('postModalBody')
   const footerEl = document.querySelector('.modal-footer')
 
-
   titleEl.textContent = post.title
   bodyEl.innerHTML = `<p>${post.description || ''}</p>`
-
 
   // Кнопки в footer
   footerEl.innerHTML = `
@@ -44,18 +40,15 @@ const openPostModal = (post) => {
     </button>
   `
 
-
   const modal = new bootstrap.Modal(document.getElementById('postModal'))
   modal.show()
 }
-
 
 // Загружает новые посты
 const updateFeedSilent = async (feed, posts) => {
   try {
     const rssData = await fetchRss(feed.url)
     const { posts: newPosts } = parseRss(rssData)
-
 
     newPosts.forEach(({ title, description, link }) => {
       const exists = posts.some(p => p.link === link)
@@ -69,18 +62,15 @@ const updateFeedSilent = async (feed, posts) => {
         })
       }
     })
-  }
-  catch {
+  } catch {
     // игнорируем
   }
 }
-
 
 // Обновляет все фиды
 const updateAllFeedsSilent = async (feeds, posts) => {
   await Promise.all(feeds.map(feed => updateFeedSilent(feed, posts)))
 }
-
 
 export default () => {
   // Находим элементы на странице
@@ -93,7 +83,6 @@ export default () => {
     postsContainer: document.getElementById('posts'),
   }
 
-
   // Состояние приложения
   const state = {
     feeds: [],
@@ -104,28 +93,23 @@ export default () => {
     successMessage: false,
   }
 
-
   const update = () => {
     // Показываем ошибки или успех
     if (state.successMessage) {
       renderSuccess(elements.feedback)
-    }
-    else {
+    } else {
       renderErrors(state.errors, elements)
     }
-
 
     renderFeeds(state.feeds, elements.feedsContainer)
     renderPosts(state.posts, elements.postsContainer, state.readPosts)
     elements.button.disabled = state.isLoading
   }
 
-
   // Наблюдаемое состояние
   const watchedState = onChange(state, () => {
     update()
   })
-
 
   // Обработчик клика по кнопкам "Просмотр"
   elements.postsContainer.addEventListener('click', (e) => {
@@ -133,10 +117,8 @@ export default () => {
       const { postId } = e.target.dataset
       const post = watchedState.posts.find(p => p.id === postId)
 
-
       if (post) {
         openPostModal(post)
-
 
         if (!watchedState.readPosts.includes(postId)) {
           watchedState.readPosts.push(postId)
@@ -145,30 +127,23 @@ export default () => {
     }
   })
 
-
   // Обработчик отправки формы
   elements.form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
-
     const url = elements.input.value.trim()
     const schema = createSchema(watchedState.feeds)
-
 
     try {
       await schema.validate({ url })
 
-
       watchedState.errors = {}
       watchedState.isLoading = true
-
 
       const rssData = await fetchRss(url)
       const { feed, posts } = parseRss(rssData)
 
-
       const feedId = generateId()
-
 
       watchedState.feeds.push({
         id: feedId,
@@ -176,7 +151,6 @@ export default () => {
         title: feed.title,
         description: feed.description,
       })
-
 
       posts.forEach(({ title, description, link }) => {
         watchedState.posts.push({
@@ -188,51 +162,40 @@ export default () => {
         })
       })
 
-
       resetForm(elements)
       watchedState.isLoading = false
-
 
       // Показываем сообщение об успехе
       watchedState.successMessage = true
       update()
-    }
-    catch (error) {
+    } catch (error) {
       watchedState.isLoading = false
       watchedState.successMessage = false
 
-
       if (error.message === 'invalid_rss_format') {
         watchedState.errors.url = i18next.t('errors.invalidRss')
-      }
-      else if (error.message === 'fetch_error') {
+      } else if (error.message === 'fetch_error') {
         watchedState.errors.url = i18next.t('errors.networkError')
-      }
-      else if (error.message === 'duplicate') {
+      } else if (error.message === 'duplicate') {
         watchedState.errors.url = i18next.t('errors.duplicate')
       }
-
 
       update()
     }
   })
-
 
   // Обработчик на изменение инпута
   elements.input.addEventListener('input', async function () {
     const url = elements.input.value.trim()
     const schema = createSchema(watchedState.feeds)
 
-
     try {
       await schema.validate({ url })
       watchedState.errors = {}
-    }
-    catch (error) {
+    } catch (error) {
       watchedState.errors.url = error.message
     }
   })
-
 
   // Автообновление
   const scheduleUpdate = async () => {
@@ -245,7 +208,6 @@ export default () => {
     )
     setTimeout(scheduleUpdate, 5000)
   }
-
 
   scheduleUpdate()
 }
