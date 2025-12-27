@@ -122,10 +122,6 @@ const renderPosts = (posts, container, readPosts = []) => {
 
     const isRead = readPosts.includes(post.id);
 
-    const linkContainer = document.createElement('div');
-    linkContainer.style.flex = '1';
-    linkContainer.style.minWidth = '0';
-
     const link = document.createElement('a');
     link.href = post.link;
     link.target = '_blank';
@@ -134,15 +130,15 @@ const renderPosts = (posts, container, readPosts = []) => {
     link.style.fontSize = '1rem';
     link.style.lineHeight = '1.5';
     link.style.wordWrap = 'break-word';
-    link.style.display = 'inline';
+    link.style.display = 'block';
+    link.style.flex = '1';
+    link.style.minWidth = '0';
 
     if (isRead) {
       link.classList.add('fw-normal', 'text-muted');
     } else {
       link.classList.add('fw-bold');
     }
-
-    linkContainer.appendChild(link);
 
     const viewBtn = document.createElement('button');
     viewBtn.type = 'button';
@@ -152,7 +148,7 @@ const renderPosts = (posts, container, readPosts = []) => {
     viewBtn.style.flexShrink = '0';
     viewBtn.style.whiteSpace = 'nowrap';
 
-    item.appendChild(linkContainer);
+    item.appendChild(link);
     item.appendChild(viewBtn);
     postList.appendChild(item);
   });
