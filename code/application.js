@@ -175,14 +175,13 @@ export default () => {
       watchedState.successMessage = false;
 
       if (error.message === 'invalid_rss_format') {
-        watchedState.errors.url = i18next.t('errors.invalid_rss_format');
+        watchedState.errors.url = i18next.t('errors.invalidRss');
       } else if (error.message === 'fetch_error') {
-        watchedState.errors.url = i18next.t('errors.fetch_error');
+        watchedState.errors.url = i18next.t('errors.networkError');
       } else if (error.message === 'duplicate') {
         watchedState.errors.url = i18next.t('errors.duplicate');
-      } else {
-        watchedState.errors.url = error.message;
       }
+
       update();
     }
   });
