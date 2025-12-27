@@ -10,6 +10,8 @@
     "sourceType": "module"
   },
   "rules": {
+    "@stylistic/semi": "off",
+    "semi": "off",
     "no-console": "warn",
     "no-unused-vars": "warn",
     "import/no-unresolved": ["error", { "ignore": ["on-change"] }]
