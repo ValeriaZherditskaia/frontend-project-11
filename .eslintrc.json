@@ -11,6 +11,12 @@
   },
   "rules": {
     "@stylistic/semi": "off",
+    "@stylistic/brace-style": "off",
+    "@stylistic/arrow-parens": "off",
+    "arrow-parens": "off",
+    "brace-style": "off",
+    "prefer-arrow-callback": "off",
+    "func-names": "off",
     "semi": "off",
     "no-console": "warn",
     "no-unused-vars": "warn",
