@@ -1,4 +1,4 @@
-import js from '@eslint/js'
+import importPlugin from 'eslint-plugin-import'
 
 export default [
   {
@@ -14,6 +14,9 @@ export default [
         es2021: true,
         node: true,
       },
+    },
+    plugins: {
+      import: importPlugin,
     },
     rules: {
       '@stylistic/semi': 'off',
