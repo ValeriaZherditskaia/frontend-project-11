@@ -1,6 +1,4 @@
-cat > eslint.config.js << 'EOF'
 import js from '@eslint/js'
-import airbnbBase from 'eslint-config-airbnb-base'
 
 export default [
   {
@@ -17,9 +15,7 @@ export default [
         node: true,
       },
     },
-    ...airbnbBase,
     rules: {
-      ...airbnbBase.rules,
       '@stylistic/semi': 'off',
       '@stylistic/brace-style': 'off',
       '@stylistic/arrow-parens': 'off',
@@ -34,4 +30,3 @@ export default [
     },
   },
 ]
-EOF
