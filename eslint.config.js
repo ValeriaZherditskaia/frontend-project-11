@@ -1,12 +1,6 @@
 import importPlugin from 'eslint-plugin-import'
-import stylisticPlugin from '@stylistic/eslint-plugin'
 
 const rules = {
-  '@stylistic/semi': 'off',
-  '@stylistic/brace-style': 'off',
-  '@stylistic/arrow-parens': 'off',
-  '@stylistic/no-multiple-empty-lines': 'off',
-  '@stylistic/no-trailing-spaces': 'off',
   'arrow-parens': 'off',
   'brace-style': 'off',
   'prefer-arrow-callback': 'off',
@@ -34,7 +28,6 @@ export default [
     },
     plugins: {
       import: importPlugin,
-      '@stylistic': stylisticPlugin,
     },
     rules,
   },
