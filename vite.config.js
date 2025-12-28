@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   root: '.',
@@ -9,4 +9,4 @@ export default defineConfig({
   server: {
     port: 5173,
   },
-});
+})
