@@ -16,7 +16,8 @@ const fetchRss = async (url) => {
     }
 
     return response.data.contents
-  } catch {
+  }
+  catch {
     throw new Error('fetch_error')
   }
 }

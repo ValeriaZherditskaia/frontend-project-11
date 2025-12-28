@@ -51,7 +51,7 @@ const updateFeedSilent = async (feed, posts) => {
     const { posts: newPosts } = parseRss(rssData)
 
     newPosts.forEach(({ title, description, link }) => {
-      const exists = posts.some((p) => p.link === link)
+      const exists = posts.some(p => p.link === link)
       if (!exists) {
         posts.unshift({
           id: generateId(),
@@ -69,7 +69,7 @@ const updateFeedSilent = async (feed, posts) => {
 
 // Обновляет все фиды
 const updateAllFeedsSilent = async (feeds, posts) => {
-  await Promise.all(feeds.map((feed) => updateFeedSilent(feed, posts)))
+  await Promise.all(feeds.map(feed => updateFeedSilent(feed, posts)))
 }
 
 export default () => {
@@ -115,7 +115,7 @@ export default () => {
   elements.postsContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('btn-outline-primary')) {
       const { postId } = e.target.dataset
-      const post = watchedState.posts.find((p) => p.id === postId)
+      const post = watchedState.posts.find(p => p.id === postId)
 
       if (post) {
         openPostModal(post)

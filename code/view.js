@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import i18next from './i18n'
 
 // Подсветка инпута и вывод ошибок

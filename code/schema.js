@@ -14,7 +14,7 @@ yup.setLocale({
 // Создаёт schema с проверкой дубликатов
 const createSchema = (feeds) => {
   // Список уже добавленных URL
-  const existingUrls = feeds.map((feed) => feed.url)
+  const existingUrls = feeds.map(feed => feed.url)
 
   // Возвращаем новую schema с проверкой дубликатов
   return yup.object().shape({
