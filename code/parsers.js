@@ -1,51 +1,51 @@
 const parseRss = (xmlString) => {
-  const parser = new DOMParser()
-  const xmlDoc = parser.parseFromString(xmlString, 'application/xml')
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
 
-  const parserError = xmlDoc.querySelector('parsererror')
+  const parserError = xmlDoc.querySelector('parsererror');
   if (parserError) {
-    throw new Error('invalid_rss_format')
+    throw new Error('invalid_rss_format');
   }
 
   // Извлекаем информацию о фиде
-  const channelElement = xmlDoc.querySelector('channel')
+  const channelElement = xmlDoc.querySelector('channel');
   if (!channelElement) {
-    throw new Error('invalid_rss_format')
+    throw new Error('invalid_rss_format');
   }
 
   // Извлекаем данные фида
-  const titleElement = channelElement.querySelector('title')
+  const titleElement = channelElement.querySelector('title');
   const feedTitle = titleElement
     ? titleElement.textContent.trim()
-    : 'Без заголовка'
-  const descriptionElement = channelElement.querySelector('description')
+    : 'Без заголовка';
+  const descriptionElement = channelElement.querySelector('description');
   const feedDescription = descriptionElement
     ? descriptionElement.textContent.trim()
-    : 'Без описания'
+    : 'Без описания';
 
   // Извлекаем все посты
-  const itemElements = channelElement.querySelectorAll('item')
-  const posts = []
+  const itemElements = channelElement.querySelectorAll('item');
+  const posts = [];
   itemElements.forEach((item) => {
-    const postTitleElement = item.querySelector('title')
+    const postTitleElement = item.querySelector('title');
     const postTitle = postTitleElement
       ? postTitleElement.textContent.trim()
-      : 'Без заголовка'
+      : 'Без заголовка';
 
-    const postLinkElement = item.querySelector('link')
-    const postLink = postLinkElement ? postLinkElement.textContent.trim() : ''
+    const postLinkElement = item.querySelector('link');
+    const postLink = postLinkElement ? postLinkElement.textContent.trim() : '';
 
-    const postDescriptionElement = item.querySelector('description')
+    const postDescriptionElement = item.querySelector('description');
     const postDescription = postDescriptionElement
       ? postDescriptionElement.textContent.trim()
-      : 'Описание не доступно'
+      : 'Описание не доступно';
 
     posts.push({
       title: postTitle,
       description: postDescription,
       link: postLink,
-    })
-  })
+    });
+  });
 
   return {
     feed: {
@@ -53,6 +53,6 @@ const parseRss = (xmlString) => {
       description: feedDescription,
     },
     posts,
-  }
-}
-export default parseRss
+  };
+};
+export default parseRss;
