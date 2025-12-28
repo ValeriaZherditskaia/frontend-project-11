@@ -62,7 +62,8 @@ const updateFeedSilent = async (feed, posts) => {
         })
       }
     })
-  } catch {
+  }
+  catch {
     // игнорируем
   }
 }
@@ -97,7 +98,8 @@ export default () => {
     // Показываем ошибки или успех
     if (state.successMessage) {
       renderSuccess(elements.feedback)
-    } else {
+    }
+    else {
       renderErrors(state.errors, elements)
     }
 
@@ -168,15 +170,18 @@ export default () => {
       // Показываем сообщение об успехе
       watchedState.successMessage = true
       update()
-    } catch (error) {
+    }
+    catch (error) {
       watchedState.isLoading = false
       watchedState.successMessage = false
 
       if (error.message === 'invalid_rss_format') {
         watchedState.errors.url = i18next.t('errors.invalidRss')
-      } else if (error.message === 'fetch_error') {
+      }
+      else if (error.message === 'fetch_error') {
         watchedState.errors.url = i18next.t('errors.networkError')
-      } else if (error.message === 'duplicate') {
+      }
+      else if (error.message === 'duplicate') {
         watchedState.errors.url = i18next.t('errors.duplicate')
       }
 
@@ -192,7 +197,8 @@ export default () => {
     try {
       await schema.validate({ url })
       watchedState.errors = {}
-    } catch (error) {
+    }
+    catch (error) {
       watchedState.errors.url = error.message
     }
   })
