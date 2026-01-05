@@ -1,58 +1,26 @@
-const parseRss = (xmlString) => {
+export const parseRss = (xmlString) => {
   const parser = new DOMParser()
-  const xmlDoc = parser.parseFromString(xmlString, 'application/xml')
-
-  const parserError = xmlDoc.querySelector('parsererror')
-  if (parserError) {
-    throw new Error('invalid_rss_format')
+  const doc = parser.parseFromString(xmlString, 'application/xml')
+  
+  const errorNode = doc.querySelector('parsererror')
+  if (errorNode) {
+    const error = new Error(errorNode.textContent)
+    error.code = 'errors.invalid_rss'
+    throw error
   }
-
-  // Извлекаем информацию о фиде
-  const channelElement = xmlDoc.querySelector('channel')
-  if (!channelElement) {
-    throw new Error('invalid_rss_format')
+  
+  const channel = doc.querySelector('channel')
+  const feed = {
+    title: channel.querySelector('title').textContent,
+    description: channel.querySelector('description').textContent,
   }
-
-  // Извлекаем данные фида
-  const titleElement = channelElement.querySelector('title')
-  const feedTitle = titleElement
-    ? titleElement.textContent.trim()
-    : 'Без заголовка'
-  const descriptionElement = channelElement.querySelector('description')
-  const feedDescription = descriptionElement
-    ? descriptionElement.textContent.trim()
-    : 'Без описания'
-
-  // Извлекаем все посты
-  const itemElements = channelElement.querySelectorAll('item')
-  const posts = []
-  itemElements.forEach((item) => {
-    const postTitleElement = item.querySelector('title')
-    const postTitle = postTitleElement
-      ? postTitleElement.textContent.trim()
-      : 'Без заголовка'
-
-    const postLinkElement = item.querySelector('link')
-    const postLink = postLinkElement ? postLinkElement.textContent.trim() : ''
-
-    const postDescriptionElement = item.querySelector('description')
-    const postDescription = postDescriptionElement
-      ? postDescriptionElement.textContent.trim()
-      : 'Описание не доступно'
-
-    posts.push({
-      title: postTitle,
-      description: postDescription,
-      link: postLink,
-    })
-  })
-
-  return {
-    feed: {
-      title: feedTitle,
-      description: feedDescription,
-    },
-    posts,
-  }
+  
+  const items = Array.from(doc.querySelectorAll('item'))
+  const posts = items.map((item) => ({
+    title: item.querySelector('title').textContent,
+    link: item.querySelector('link').textContent,
+    description: item.querySelector('description').textContent,
+  }))
+  
+  return { feed, posts }
 }
-export default parseRss

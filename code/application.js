@@ -1,219 +1,118 @@
-/* eslint-disable no-use-before-define */
-import * as bootstrap from 'bootstrap'
 import onChange from 'on-change'
-import i18next from './i18n'
-import createSchema from './schema'
-import {
-  renderErrors,
-  resetForm,
-  renderFeeds,
-  renderPosts,
-  renderSuccess,
-} from './view'
-import fetchRss from './fetcher'
-import parseRss from './parsers'
-
-// Генерирует уникальный ID для фидов и постов
-const generateId = () => Math.random().toString(36).slice(2)
-
-// Функция для открытия модального окна
-const openPostModal = (post) => {
-  const titleEl = document.getElementById('postModalLabel')
-  const bodyEl = document.getElementById('postModalBody')
-  const footerEl = document.querySelector('.modal-footer')
-
-  titleEl.textContent = post.title
-  bodyEl.innerHTML = `<p>${post.description || ''}</p>`
-
-  // Кнопки в footer
-  footerEl.innerHTML = `
-    <a
-      href="${post.link}"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="btn btn-primary"
-    >
-      Читать полностью
-    </a>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-      Закрыть
-    </button>
-  `
-
-  const modal = new bootstrap.Modal(document.getElementById('postModal'))
-  modal.show()
-}
-
-// Загружает новые посты
-const updateFeedSilent = async (feed, posts) => {
-  try {
-    const rssData = await fetchRss(feed.url)
-    const { posts: newPosts } = parseRss(rssData)
-
-    newPosts.forEach(({ title, description, link }) => {
-      const exists = posts.some(p => p.link === link)
-      if (!exists) {
-        posts.unshift({
-          id: generateId(),
-          feedId: feed.id,
-          title,
-          description,
-          link,
-        })
-      }
-    })
-  }
-  catch {
-    // игнорируем
-  }
-}
-
-// Обновляет все фиды
-const updateAllFeedsSilent = async (feeds, posts) => {
-  await Promise.all(feeds.map(feed => updateFeedSilent(feed, posts)))
-}
+import { uniqueId } from 'lodash'
+import { fetchRss } from './fetcher.js'
+import { parseRss } from './parsers.js'
+import { createSchema } from './schema.js'
+import { render } from './view.js'
 
 export default () => {
-  // Находим элементы на странице
+  const state = {
+    form: {
+      url: '',
+      valid: true,
+      errors: [],
+    },
+    loading: {
+      status: 'idle',
+      error: null,
+    },
+    feeds: [],
+    posts: [],
+    ui: {
+      viewedPostIds: new Set(),
+      modalPostId: null,
+    },
+  }
+
   const elements = {
     form: document.getElementById('rss-form'),
     input: document.getElementById('url-input'),
-    button: document.querySelector('button[type="submit"]'),
-    feedback: document.querySelector('.invalid-feedback'),
-    feedsContainer: document.getElementById('feeds'),
-    postsContainer: document.getElementById('posts'),
+    feedback: document.getElementById('feedback'),
+    postsContainer: document.querySelector('.posts'),
+    feedsContainer: document.querySelector('.feeds'),
+    modal: document.getElementById('modal'),
   }
 
-  // Состояние приложения
-  const state = {
-    feeds: [],
-    posts: [],
-    readPosts: [],
-    errors: {},
-    isLoading: false,
-    successMessage: false,
-  }
-
-  const update = () => {
-    // Показываем ошибки или успех
-    if (state.successMessage) {
-      renderSuccess(elements.feedback)
-    }
-    else {
-      renderErrors(state.errors, elements)
-    }
-
-    renderFeeds(state.feeds, elements.feedsContainer)
-    renderPosts(state.posts, elements.postsContainer, state.readPosts)
-    elements.button.disabled = state.isLoading
-  }
-
-  // Наблюдаемое состояние
-  const watchedState = onChange(state, () => {
-    update()
+  const watchedState = onChange(state, (path, value) => {
+    render(elements, state, path, value)
   })
 
-  // Обработчик клика по кнопкам "Просмотр"
-  elements.postsContainer.addEventListener('click', (e) => {
-    if (e.target.classList.contains('btn-outline-primary')) {
-      const { postId } = e.target.dataset
-      const post = watchedState.posts.find(p => p.id === postId)
+  const updateFeeds = () => {
+    const promises = state.feeds.map((feed) => fetchRss(feed.url)
+      .then((xml) => {
+        const { posts } = parseRss(xml)
+        const newPosts = posts.filter((post) => 
+          !state.posts.some((existing) => existing.link === post.link)
+        )
 
-      if (post) {
-        openPostModal(post)
-
-        if (!watchedState.readPosts.includes(postId)) {
-          watchedState.readPosts.push(postId)
+        if (newPosts.length > 0) {
+          const postsWithIds = newPosts.map((post) => ({
+            ...post,
+            id: uniqueId(),
+            feedId: feed.id,
+          }))
+          watchedState.posts.unshift(...postsWithIds)
         }
-      }
-    }
-  })
-
-  // Обработчик отправки формы
-  elements.form.addEventListener('submit', async (e) => {
-    e.preventDefault()
-
-    const url = elements.input.value.trim()
-    const schema = createSchema(watchedState.feeds)
-
-    try {
-      await schema.validate({ url })
-
-      watchedState.errors = {}
-      watchedState.isLoading = true
-
-      const rssData = await fetchRss(url)
-      const { feed, posts } = parseRss(rssData)
-
-      const feedId = generateId()
-
-      watchedState.feeds.push({
-        id: feedId,
-        url,
-        title: feed.title,
-        description: feed.description,
       })
+      .catch((e) => console.error('Update error', e)))
 
-      posts.forEach(({ title, description, link }) => {
-        watchedState.posts.push({
-          id: generateId(),
-          feedId,
-          title,
-          description,
-          link,
-        })
-      })
-
-      resetForm(elements)
-      watchedState.isLoading = false
-
-      // Показываем сообщение об успехе
-      watchedState.successMessage = true
-      update()
-    }
-    catch (error) {
-      watchedState.isLoading = false
-      watchedState.successMessage = false
-
-      if (error.message === 'invalid_rss_format') {
-        watchedState.errors.url = i18next.t('errors.invalidRss')
-      }
-      else if (error.message === 'fetch_error') {
-        watchedState.errors.url = i18next.t('errors.networkError')
-      }
-      else if (error.message === 'duplicate') {
-        watchedState.errors.url = i18next.t('errors.duplicate')
-      }
-
-      update()
-    }
-  })
-
-  // Обработчик на изменение инпута
-  elements.input.addEventListener('input', async () => {
-    const url = elements.input.value.trim()
-    const schema = createSchema(watchedState.feeds)
-
-    try {
-      await schema.validate({ url })
-      watchedState.errors = {}
-    }
-    catch (error) {
-      watchedState.errors.url = error.message
-    }
-  })
-
-  // Автообновление
-  const scheduleUpdate = async () => {
-    await updateAllFeedsSilent(watchedState.feeds, watchedState.posts)
-    // Ручное обновление постов
-    renderPosts(
-      watchedState.posts,
-      elements.postsContainer,
-      watchedState.readPosts,
-    )
-    setTimeout(scheduleUpdate, 5000)
+    Promise.all(promises).finally(() => {
+      setTimeout(updateFeeds, 5000)
+    })
   }
 
-  scheduleUpdate()
+  setTimeout(updateFeeds, 5000)
+
+  elements.form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const url = formData.get('url').trim()
+
+    watchedState.form.valid = true
+    watchedState.form.errors = []
+    
+    const schema = createSchema(state.feeds)
+
+    schema.validate({ url })
+      .then(() => {
+        watchedState.form.valid = true
+        watchedState.form.errors = []
+        watchedState.loading.status = 'pending'
+        watchedState.loading.error = null
+
+        return fetchRss(url)
+      })
+      .then((xml) => {
+        const { feed, posts } = parseRss(xml)
+        
+        const feedId = uniqueId()
+        watchedState.feeds.unshift({ ...feed, id: feedId, url })
+        
+        const postsWithIds = posts.map((post) => ({
+          ...post,
+          id: uniqueId(),
+          feedId,
+        }))
+        watchedState.posts.unshift(...postsWithIds)
+
+        watchedState.loading.status = 'succeeded'
+      })
+      .catch((error) => {
+        if (error.name === 'ValidationError') {
+          watchedState.form.valid = false
+          watchedState.form.errors = error.errors
+        } else {
+          watchedState.loading.status = 'failed'
+          watchedState.loading.error = error.code || 'errors.fetch_error'
+        }
+      })
+  })
+
+  elements.postsContainer.addEventListener('click', (e) => {
+    const { id } = e.target.dataset
+    if (id) {
+      watchedState.ui.modalPostId = id
+      watchedState.ui.viewedPostIds.add(id)
+    }
+  })
 }

@@ -1,25 +1,23 @@
 import axios from 'axios'
 
-const fetchRss = async (url) => {
-  const proxyUrl = 'https://allorigins.hexlet.app/get'
+const PROXY_URL = 'https://allorigins.hexlet.app/get'
 
-  const params = {
-    url,
-    disableCache: true,
-  }
-
-  try {
-    const response = await axios.get(proxyUrl, { params })
-
-    if (response.data.contents === null) {
-      throw new Error('fetch_error')
+export const fetchRss = (url) => {
+  return axios.get(PROXY_URL, {
+    params: {
+      disableCache: true,
+      url,
+    },
+  }).then((response) => {
+    if (response.data.status.http_code !== 200) {
+      const error = new Error('Network error')
+      error.code = 'errors.fetch_error'
+      throw error
     }
-
     return response.data.contents
-  }
-  catch {
-    throw new Error('fetch_error')
-  }
+  }).catch(() => {
+    const error = new Error('Network error')
+    error.code = 'errors.fetch_error'
+    throw error
+  })
 }
-
-export default fetchRss

@@ -1,5 +1,9 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
 import './style.css'
-import app from './application'
+import 'bootstrap'
+import i18n from './i18n.js'
+import application from './application.js'
 
-app()
+// Ждем инициализации i18n, потом запускаем приложение
+i18n.init().then(() => {
+  application()
+})
