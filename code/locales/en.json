@@ -1,14 +1,19 @@
 {
-  "preview": "Preview",
-  "closeButton": "Close",
-  "success": "RSS loaded successfully",
-  "feeds": "Feeds",
-  "posts": "Posts",
+  "validation": {
+    "required": "Must not be empty",
+    "url": "Link must be a valid URL",
+    "duplicate": "RSS already exists"
+  },
   "errors": {
-    "empty": "Must not be empty",
-    "invalidUrl": "Link must be a valid URL",
-    "duplicate": "RSS already exists",
     "invalidRss": "Resource does not contain valid RSS",
     "networkError": "Network error"
+  },
+  "success": {
+    "rss_added": "RSS loaded successfully"
+  },
+  "ui": {
+    "feeds": "Feeds",
+    "posts": "Posts",
+    "preview": "Preview"
   }
 }

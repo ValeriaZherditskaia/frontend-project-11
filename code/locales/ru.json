@@ -1,14 +1,19 @@
 {
-  "preview": "Просмотр",
-  "closeButton": "Закрыть",
-  "success": "RSS успешно загружен",
-  "feeds": "Фиды",
-  "posts": "Посты",
+  "validation": {
+    "required": "Не должно быть пустым",
+    "url": "Ссылка должна быть валидным URL",
+    "duplicate": "RSS уже существует"
+  },
   "errors": {
-    "empty": "Не должно быть пустым",
-    "invalidUrl": "Ссылка должна быть валидным URL",
-    "duplicate": "RSS уже существует",
     "invalidRss": "Ресурс не содержит валидный RSS",
     "networkError": "Ошибка сети"
+  },
+  "success": {
+    "rss_added": "RSS успешно загружен"
+  },
+  "ui": {
+    "feeds": "Фиды",
+    "posts": "Посты",
+    "preview": "Просмотр"
   }
 }

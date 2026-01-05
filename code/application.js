@@ -27,7 +27,7 @@ export default () => {
   const elements = {
     form: document.getElementById('rss-form'),
     input: document.getElementById('url-input'),
-    feedback: document.getElementById('feedback'),
+    feedback: document.querySelector('.feedback'),
     postsContainer: document.querySelector('.posts'),
     feedsContainer: document.querySelector('.feeds'),
     modal: document.getElementById('modal'),

@@ -1,5 +1,6 @@
 import i18n from './i18n.js'
 
+
 const handleFormState = (elements, formState) => {
   const { input, feedback } = elements
   
@@ -14,9 +15,11 @@ const handleFormState = (elements, formState) => {
   }
 }
 
+
 const handleLoadingState = (elements, loadingState) => {
   const { input, feedback, form } = elements
   const submitButton = form.querySelector('button[type="submit"]')
+
 
   switch (loadingState.status) {
     case 'pending':
@@ -36,10 +39,11 @@ const handleLoadingState = (elements, loadingState) => {
       feedback.classList.remove('text-danger')
       break
 
+
     case 'failed':
       submitButton.disabled = false
       input.readOnly = false
-      feedback.textContent = i18n.t(loadingState.error)
+      feedback.textContent = i18n.t(`errors.${loadingState.error}`)
       feedback.classList.add('text-danger')
       break
       
@@ -47,6 +51,7 @@ const handleLoadingState = (elements, loadingState) => {
       break
   }
 }
+
 
 const renderFeeds = (container, feeds) => {
   if (feeds.length === 0) return
@@ -84,6 +89,7 @@ const renderFeeds = (container, feeds) => {
   card.append(cardBody, ul)
   container.append(card)
 }
+
 
 const renderPosts = (container, posts, viewedIds) => {
   if (posts.length === 0) return
@@ -135,6 +141,7 @@ const renderPosts = (container, posts, viewedIds) => {
   container.append(card)
 }
 
+
 const renderModal = (elements, modalPostId, posts) => {
   if (!modalPostId) return
   
@@ -150,6 +157,7 @@ const renderModal = (elements, modalPostId, posts) => {
   body.textContent = post.description
   link.href = post.link
 }
+
 
 export const render = (elements, state, path, value) => {
   switch (path) {
