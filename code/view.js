@@ -50,9 +50,6 @@ const handleLoadingState = (elements, loadingState, i18n) => {
     case 'idle':
       submitButton.disabled = false
       input.readOnly = false
-      feedback.textContent = ''
-      feedback.classList.remove('text-success', 'text-danger')
-      feedback.style.display = 'none'
       break
       
     default:
