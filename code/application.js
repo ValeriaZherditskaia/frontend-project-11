@@ -113,8 +113,8 @@ export default () => {
           watchedState.form.errors = error.errors
           watchedState.loading.status = 'idle'
         } else {
-          watchedState.loading.status = 'failed'
           watchedState.loading.error = error.code || 'networkError'
+          watchedState.loading.status = 'failed'
         }
       })
   })
