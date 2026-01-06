@@ -1,8 +1,6 @@
 import axios from 'axios'
 
-
 const PROXY_URL = 'https://allorigins.hexlet.app/get'
-
 
 export const fetchRss = (url) => {
   return axios.get(PROXY_URL, {

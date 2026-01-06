@@ -6,7 +6,6 @@ import { createSchema } from './schema.js'
 import { render } from './view.js'
 import i18n from './i18n.js'
 
-
 export default () => {
   const state = {
     form: {
@@ -26,7 +25,6 @@ export default () => {
     },
   }
 
-
   const elements = {
     form: document.getElementById('rss-form'),
     input: document.getElementById('url-input'),
@@ -36,23 +34,20 @@ export default () => {
     modal: document.getElementById('modal'),
   }
 
-
   const watchedState = onChange(state, (path, value) => {
     render(elements, state, path, value, i18n)
   })
 
-
   const updateFeeds = () => {
-    const promises = state.feeds.map((feed) => fetchRss(feed.url)
-      .then((xml) => {
+    const promises = state.feeds.map(feed => fetchRss(feed.url)
+      .then(xml => {
         const { posts } = parseRss(xml)
-        const newPosts = posts.filter((post) => 
-          !state.posts.some((existing) => existing.link === post.link)
+        const newPosts = posts.filter(post =>
+          !state.posts.some(existing => existing.link === post.link),
         )
 
-
         if (newPosts.length > 0) {
-          const postsWithIds = newPosts.map((post) => ({
+          const postsWithIds = newPosts.map(post => ({
             ...post,
             id: uniqueId(),
             feedId: feed.id,
@@ -60,26 +55,21 @@ export default () => {
           watchedState.posts.unshift(...postsWithIds)
         }
       })
-      .catch((e) => console.error('Update error', e)))
-
+      .catch(e => console.error('Update error', e)))
 
     Promise.all(promises).finally(() => {
       setTimeout(updateFeeds, 5000)
     })
   }
 
-
   setTimeout(updateFeeds, 5000)
 
-
-  elements.form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', e => {
     e.preventDefault()
     const formData = new FormData(e.target)
     const url = formData.get('url').trim()
 
-
     const schema = createSchema(state.feeds)
-
 
     schema.validate({ url })
       .then(() => {
@@ -88,26 +78,24 @@ export default () => {
         watchedState.loading.status = 'pending'
         watchedState.loading.error = null
 
-
         return fetchRss(url)
       })
-      .then((xml) => {
+      .then(xml => {
         const { feed, posts } = parseRss(xml)
-        
+
         const feedId = uniqueId()
         watchedState.feeds.unshift({ ...feed, id: feedId, url })
-        
-        const postsWithIds = posts.map((post) => ({
+
+        const postsWithIds = posts.map(post => ({
           ...post,
           id: uniqueId(),
           feedId,
         }))
         watchedState.posts.unshift(...postsWithIds)
 
-
         watchedState.loading.status = 'succeeded'
       })
-      .catch((error) => {
+      .catch(error => {
         if (error.name === 'ValidationError') {
           watchedState.form.valid = false
           watchedState.form.errors = error.errors
@@ -119,8 +107,7 @@ export default () => {
       })
   })
 
-
-  elements.postsContainer.addEventListener('click', (e) => {
+  elements.postsContainer.addEventListener('click', e => {
     const { id } = e.target.dataset
     if (id) {
       watchedState.ui.modalPostId = id
