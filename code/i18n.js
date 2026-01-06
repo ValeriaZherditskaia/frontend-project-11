@@ -2,7 +2,7 @@ import i18next from 'i18next'
 import ruResources from './locales/ru.json'
 import enResources from './locales/en.json'
 
-const i18n = i18next.init({
+i18next.init({
   lng: 'ru',
   resources: {
     ru: { translation: ruResources },
@@ -10,4 +10,4 @@ const i18n = i18next.init({
   },
 })
 
-export default i18n
+export default i18next
