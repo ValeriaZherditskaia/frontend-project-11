@@ -152,9 +152,7 @@ const renderModal = (elements, modalPostId, posts) => {
   const link = modal.querySelector('.full-article')
   
   title.textContent = post.title
-  
-  body.textContent = post.description
-  
+  body.textContent = post.description // Используем textContent для безопасности
   link.href = post.link
 }
 

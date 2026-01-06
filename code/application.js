@@ -4,8 +4,9 @@ import { fetchRss } from './fetcher.js'
 import { parseRss } from './parsers.js'
 import { createSchema } from './schema.js'
 import { render } from './view.js'
+import i18n from './i18n.js'
 
-export default (i18n) => {
+export default () => {
   const state = {
     form: {
       url: '',
@@ -93,11 +94,6 @@ export default (i18n) => {
         watchedState.posts.unshift(...postsWithIds)
 
         watchedState.loading.status = 'succeeded'
-        
-        // Сбросить статус через 2 сек (позволяет скрыть сообщение)
-        setTimeout(() => {
-          watchedState.loading.status = 'idle'
-        }, 2000)
       })
       .catch((error) => {
         if (error.name === 'ValidationError') {
@@ -111,10 +107,11 @@ export default (i18n) => {
   })
 
   elements.input.addEventListener('input', () => {
-    if (watchedState.loading.status === 'idle') {
-      watchedState.form.valid = true
-      watchedState.form.errors = []
+    if (watchedState.loading.status === 'succeeded') {
+      watchedState.loading.status = 'idle'
     }
+    watchedState.form.valid = true
+    watchedState.form.errors = []
   })
 
   elements.postsContainer.addEventListener('click', (e) => {
