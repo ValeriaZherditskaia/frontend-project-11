@@ -32,6 +32,7 @@ const handleLoadingState = (elements, loadingState, i18n) => {
       feedback.textContent = i18n.t('success.rss_added')
       feedback.classList.add('text-success')
       feedback.classList.remove('text-danger')
+      feedback.style.display = 'block'
       break
 
     case 'failed':
@@ -152,7 +153,7 @@ const renderModal = (elements, modalPostId, posts) => {
   const link = modal.querySelector('.full-article')
   
   title.textContent = post.title
-  body.textContent = post.description // Используем textContent для безопасности
+  body.textContent = post.description
   link.href = post.link
 }
 
