@@ -4,12 +4,19 @@ export const parseRss = (xmlString) => {
   
   const errorNode = doc.querySelector('parsererror')
   if (errorNode) {
-    const error = new Error(errorNode.textContent)
+    const error = new Error('Invalid RSS')
     error.code = 'invalidRss'
     throw error
   }
   
   const channel = doc.querySelector('channel')
+  
+  if (!channel) {
+    const error = new Error('Invalid RSS')
+    error.code = 'invalidRss'
+    throw error
+  }
+  
   const feed = {
     title: channel.querySelector('title').textContent,
     description: channel.querySelector('description').textContent,
