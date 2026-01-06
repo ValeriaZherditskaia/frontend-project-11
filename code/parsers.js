@@ -5,7 +5,7 @@ export const parseRss = (xmlString) => {
   const errorNode = doc.querySelector('parsererror')
   if (errorNode) {
     const error = new Error(errorNode.textContent)
-    error.code = 'errors.invalid_rss'
+    error.code = 'invalidRss'
     throw error
   }
   
