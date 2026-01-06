@@ -6,6 +6,7 @@ import { createSchema } from './schema.js'
 import { render } from './view.js'
 import i18n from './i18n.js'
 
+
 export default () => {
   const state = {
     form: {
@@ -25,6 +26,7 @@ export default () => {
     },
   }
 
+
   const elements = {
     form: document.getElementById('rss-form'),
     input: document.getElementById('url-input'),
@@ -34,9 +36,11 @@ export default () => {
     modal: document.getElementById('modal'),
   }
 
+
   const watchedState = onChange(state, (path, value) => {
     render(elements, state, path, value, i18n)
   })
+
 
   const updateFeeds = () => {
     const promises = state.feeds.map((feed) => fetchRss(feed.url)
@@ -45,6 +49,7 @@ export default () => {
         const newPosts = posts.filter((post) => 
           !state.posts.some((existing) => existing.link === post.link)
         )
+
 
         if (newPosts.length > 0) {
           const postsWithIds = newPosts.map((post) => ({
@@ -57,19 +62,24 @@ export default () => {
       })
       .catch((e) => console.error('Update error', e)))
 
+
     Promise.all(promises).finally(() => {
       setTimeout(updateFeeds, 5000)
     })
   }
 
+
   setTimeout(updateFeeds, 5000)
+
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
     const url = formData.get('url').trim()
 
+
     const schema = createSchema(state.feeds)
+
 
     schema.validate({ url })
       .then(() => {
@@ -77,6 +87,7 @@ export default () => {
         watchedState.form.errors = []
         watchedState.loading.status = 'pending'
         watchedState.loading.error = null
+
 
         return fetchRss(url)
       })
@@ -93,18 +104,21 @@ export default () => {
         }))
         watchedState.posts.unshift(...postsWithIds)
 
+
         watchedState.loading.status = 'succeeded'
       })
       .catch((error) => {
         if (error.name === 'ValidationError') {
           watchedState.form.valid = false
           watchedState.form.errors = error.errors
+          watchedState.loading.status = 'idle'
         } else {
           watchedState.loading.status = 'failed'
           watchedState.loading.error = error.code || 'networkError'
         }
       })
   })
+
 
   elements.input.addEventListener('input', () => {
     if (watchedState.loading.status === 'succeeded') {
@@ -113,6 +127,7 @@ export default () => {
     watchedState.form.valid = true
     watchedState.form.errors = []
   })
+
 
   elements.postsContainer.addEventListener('click', (e) => {
     const { id } = e.target.dataset

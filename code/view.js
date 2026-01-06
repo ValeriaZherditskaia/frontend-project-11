@@ -12,6 +12,7 @@ const handleFormState = (elements, formState, i18n) => {
   }
 }
 
+
 const handleLoadingState = (elements, loadingState, i18n) => {
   const { input, feedback, form } = elements
   const submitButton = form.querySelector('button[type="submit"]')
@@ -22,6 +23,7 @@ const handleLoadingState = (elements, loadingState, i18n) => {
       input.readOnly = true
       feedback.textContent = ''
       feedback.classList.remove('text-success', 'text-danger')
+      feedback.style.display = 'none'
       break
     
     case 'succeeded':
@@ -40,6 +42,8 @@ const handleLoadingState = (elements, loadingState, i18n) => {
       input.readOnly = false
       feedback.textContent = i18n.t(`errors.${loadingState.error}`)
       feedback.classList.add('text-danger')
+      feedback.classList.remove('text-success')
+      feedback.style.display = 'block'
       break
 
     case 'idle':
@@ -47,12 +51,14 @@ const handleLoadingState = (elements, loadingState, i18n) => {
       input.readOnly = false
       feedback.textContent = ''
       feedback.classList.remove('text-success', 'text-danger')
+      feedback.style.display = 'none'
       break
       
     default:
       break
   }
 }
+
 
 const renderFeeds = (container, feeds, i18n) => {
   if (feeds.length === 0) return
@@ -90,6 +96,7 @@ const renderFeeds = (container, feeds, i18n) => {
   card.append(cardBody, ul)
   container.append(card)
 }
+
 
 const renderPosts = (container, posts, viewedIds, i18n) => {
   if (posts.length === 0) return
@@ -141,6 +148,7 @@ const renderPosts = (container, posts, viewedIds, i18n) => {
   container.append(card)
 }
 
+
 const renderModal = (elements, modalPostId, posts) => {
   if (!modalPostId) return
   
@@ -156,6 +164,7 @@ const renderModal = (elements, modalPostId, posts) => {
   body.textContent = post.description
   link.href = post.link
 }
+
 
 export const render = (elements, state, path, value, i18n) => {
   switch (path) {
