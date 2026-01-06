@@ -1,6 +1,8 @@
 import axios from 'axios'
 
+
 const PROXY_URL = 'https://allorigins.hexlet.app/get'
+
 
 export const fetchRss = (url) => {
   return axios.get(PROXY_URL, {
@@ -11,13 +13,13 @@ export const fetchRss = (url) => {
   }).then((response) => {
     if (response.data.status.http_code !== 200) {
       const error = new Error('Network error')
-      error.code = 'errors.fetch_error'
+      error.code = 'networkError'
       throw error
     }
     return response.data.contents
   }).catch(() => {
     const error = new Error('Network error')
-    error.code = 'errors.fetch_error'
+    error.code = 'networkError'
     throw error
   })
 }
