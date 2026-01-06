@@ -120,7 +120,9 @@ export default () => {
   })
 
 
-  elements.input.addEventListener('input', () => {
+  elements.input.addEventListener('input', (e) => {
+    if (e.target.value.trim() === '') return
+  
     if (watchedState.loading.status === 'succeeded') {
       watchedState.loading.status = 'idle'
     }
