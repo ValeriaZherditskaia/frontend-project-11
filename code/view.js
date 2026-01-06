@@ -5,7 +5,6 @@ const handleFormState = (elements, formState, i18n) => {
     input.classList.remove('is-invalid')
     feedback.classList.remove('text-danger')
     feedback.textContent = ''
-    feedback.style.display = 'none'
   } else {
     input.classList.add('is-invalid')
     feedback.classList.add('text-danger')
@@ -38,7 +37,6 @@ const handleLoadingState = (elements, loadingState, i18n) => {
       feedback.classList.remove('text-danger')
       feedback.style.display = 'block'
       break
-
 
     case 'failed':
       submitButton.disabled = false
