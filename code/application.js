@@ -120,14 +120,6 @@ export default () => {
   })
 
 
-  elements.input.addEventListener('input', (e) => {
-    if (e.target.value.trim() === '') return
-
-    watchedState.form.valid = true
-    watchedState.form.errors = []
-  })
-
-
   elements.postsContainer.addEventListener('click', (e) => {
     const { id } = e.target.dataset
     if (id) {

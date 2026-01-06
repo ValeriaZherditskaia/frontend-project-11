@@ -5,10 +5,12 @@ const handleFormState = (elements, formState, i18n) => {
     input.classList.remove('is-invalid')
     feedback.classList.remove('text-danger')
     feedback.textContent = ''
+    feedback.style.display = 'none'
   } else {
     input.classList.add('is-invalid')
     feedback.classList.add('text-danger')
     feedback.textContent = i18n.t(formState.errors[0])
+    feedback.style.display = 'block'
   }
 }
 
