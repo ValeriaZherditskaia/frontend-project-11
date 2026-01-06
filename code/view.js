@@ -1,7 +1,4 @@
-import i18n from './i18n.js'
-
-
-const handleFormState = (elements, formState) => {
+const handleFormState = (elements, formState, i18n) => {
   const { input, feedback } = elements
   
   if (formState.valid) {
@@ -15,11 +12,9 @@ const handleFormState = (elements, formState) => {
   }
 }
 
-
-const handleLoadingState = (elements, loadingState) => {
+const handleLoadingState = (elements, loadingState, i18n) => {
   const { input, feedback, form } = elements
   const submitButton = form.querySelector('button[type="submit"]')
-
 
   switch (loadingState.status) {
     case 'pending':
@@ -39,12 +34,18 @@ const handleLoadingState = (elements, loadingState) => {
       feedback.classList.remove('text-danger')
       break
 
-
     case 'failed':
       submitButton.disabled = false
       input.readOnly = false
       feedback.textContent = i18n.t(`errors.${loadingState.error}`)
       feedback.classList.add('text-danger')
+      break
+
+    case 'idle':
+      submitButton.disabled = false
+      input.readOnly = false
+      feedback.textContent = ''
+      feedback.classList.remove('text-success', 'text-danger')
       break
       
     default:
@@ -52,8 +53,7 @@ const handleLoadingState = (elements, loadingState) => {
   }
 }
 
-
-const renderFeeds = (container, feeds) => {
+const renderFeeds = (container, feeds, i18n) => {
   if (feeds.length === 0) return
   
   container.innerHTML = ''
@@ -90,8 +90,7 @@ const renderFeeds = (container, feeds) => {
   container.append(card)
 }
 
-
-const renderPosts = (container, posts, viewedIds) => {
+const renderPosts = (container, posts, viewedIds, i18n) => {
   if (posts.length === 0) return
   
   container.innerHTML = ''
@@ -141,7 +140,6 @@ const renderPosts = (container, posts, viewedIds) => {
   container.append(card)
 }
 
-
 const renderModal = (elements, modalPostId, posts) => {
   if (!modalPostId) return
   
@@ -154,29 +152,30 @@ const renderModal = (elements, modalPostId, posts) => {
   const link = modal.querySelector('.full-article')
   
   title.textContent = post.title
+  
   body.textContent = post.description
+  
   link.href = post.link
 }
 
-
-export const render = (elements, state, path, value) => {
+export const render = (elements, state, path, value, i18n) => {
   switch (path) {
     case 'form.valid':
     case 'form.errors':
-      handleFormState(elements, state.form)
+      handleFormState(elements, state.form, i18n)
       break
     
     case 'loading.status':
-      handleLoadingState(elements, state.loading, state.form)
+      handleLoadingState(elements, state.loading, i18n)
       break
       
     case 'feeds':
-      renderFeeds(elements.feedsContainer, value)
+      renderFeeds(elements.feedsContainer, value, i18n)
       break
       
     case 'posts':
     case 'ui.viewedPostIds':
-      renderPosts(elements.postsContainer, state.posts, state.ui.viewedPostIds)
+      renderPosts(elements.postsContainer, state.posts, state.ui.viewedPostIds, i18n)
       break
       
     case 'ui.modalPostId':
