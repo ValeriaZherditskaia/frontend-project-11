@@ -39,23 +39,25 @@ export default () => {
   })
 
   const updateFeeds = () => {
-    const promises = state.feeds.map(feed => fetchRss(feed.url)
-      .then(xml => {
-        const { posts } = parseRss(xml)
-        const newPosts = posts.filter(post =>
-          !state.posts.some(existing => existing.link === post.link),
-        )
+    const promises = state.feeds.map((feed) => {
+      return fetchRss(feed.url)
+        .then((xml) => {
+          const { posts } = parseRss(xml)
+          const newPosts = posts.filter(post =>
+            !state.posts.some(existing => existing.link === post.link),
+          )
 
-        if (newPosts.length > 0) {
-          const postsWithIds = newPosts.map(post => ({
-            ...post,
-            id: uniqueId(),
-            feedId: feed.id,
-          }))
-          watchedState.posts.unshift(...postsWithIds)
-        }
-      })
-      .catch(e => console.error('Update error', e)))
+          if (newPosts.length > 0) {
+            const postsWithIds = newPosts.map(post => ({
+              ...post,
+              id: uniqueId(),
+              feedId: feed.id,
+            }))
+            watchedState.posts.unshift(...postsWithIds)
+          }
+        })
+        .catch(e => console.error('Update error', e))
+    })
 
     Promise.all(promises).finally(() => {
       setTimeout(updateFeeds, 5000)
@@ -64,7 +66,7 @@ export default () => {
 
   setTimeout(updateFeeds, 5000)
 
-  elements.form.addEventListener('submit', e => {
+  elements.form.addEventListener('submit', (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
     const url = formData.get('url').trim()
@@ -80,34 +82,37 @@ export default () => {
 
         return fetchRss(url)
       })
-      .then(xml => {
+      .then((xml) => {
         const { feed, posts } = parseRss(xml)
 
         const feedId = uniqueId()
         watchedState.feeds.unshift({ ...feed, id: feedId, url })
 
-        const postsWithIds = posts.map(post => ({
-          ...post,
-          id: uniqueId(),
-          feedId,
-        }))
+        const postsWithIds = posts.map((post) => {
+          return {
+            ...post,
+            id: uniqueId(),
+            feedId,
+          }
+        })
         watchedState.posts.unshift(...postsWithIds)
 
         watchedState.loading.status = 'succeeded'
       })
-      .catch(error => {
+      .catch((error) => {
         if (error.name === 'ValidationError') {
           watchedState.form.valid = false
           watchedState.form.errors = error.errors
           watchedState.loading.status = 'idle'
-        } else {
+        }
+        else {
           watchedState.loading.error = error.code || 'networkError'
           watchedState.loading.status = 'failed'
         }
       })
   })
 
-  elements.postsContainer.addEventListener('click', e => {
+  elements.postsContainer.addEventListener('click', (e) => {
     const { id } = e.target.dataset
     if (id) {
       watchedState.ui.modalPostId = id

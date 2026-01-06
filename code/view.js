@@ -74,7 +74,7 @@ const renderFeeds = (container, feeds, i18n) => {
   const ul = document.createElement('ul')
   ul.classList.add('list-group', 'list-group-flush')
 
-  feeds.forEach(feed => {
+  feeds.forEach((feed) => {
     const li = document.createElement('li')
     li.classList.add('list-group-item', 'border-0', 'border-bottom-0')
 
@@ -111,7 +111,7 @@ const renderPosts = (container, posts, viewedIds, i18n) => {
   const ul = document.createElement('ul')
   ul.classList.add('list-group', 'list-group-flush')
 
-  posts.forEach(post => {
+  posts.forEach((post) => {
     const li = document.createElement('li')
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-bottom-0')
 
@@ -124,7 +124,8 @@ const renderPosts = (container, posts, viewedIds, i18n) => {
 
     if (viewedIds.has(post.id)) {
       a.classList.add('fw-normal', 'link-secondary')
-    } else {
+    }
+    else {
       a.classList.add('fw-bold')
     }
 
