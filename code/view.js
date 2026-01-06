@@ -31,11 +31,14 @@ const handleLoadingState = (elements, loadingState, i18n) => {
     case 'succeeded':
       submitButton.disabled = false
       input.readOnly = false
+      form.reset()
+      input.focus()
       feedback.textContent = i18n.t('success.rss_added')
       feedback.classList.add('text-success')
       feedback.classList.remove('text-danger')
       feedback.style.display = 'block'
       break
+
 
     case 'failed':
       submitButton.disabled = false

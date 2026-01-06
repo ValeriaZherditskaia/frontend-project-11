@@ -11,7 +11,7 @@ export const fetchRss = (url) => {
       url,
     },
   }).then((response) => {
-    if (response.data.status.http_code !== 200) {
+    if (!response.data.contents) {
       const error = new Error('Network error')
       error.code = 'networkError'
       throw error
